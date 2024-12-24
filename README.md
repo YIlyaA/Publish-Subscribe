@@ -2,24 +2,20 @@
 Publish-Subscribe limited message distribution system up to N capacity.
 
 
-**3 pliki:**
-- `main.c` - plik testowy
-- `list.c` - wlasciwy kod
-- `list.h` - będzie szablon od sobanca
+**Files:**
+- `main.c` - test file
+- `publish.c` - function implementation
+- `publish.h` - declared functions
 
-- Struktura będzie bombardowana zapytaniami, ma się nie wywalić i działać optymalnie pod względem pamięci.
-- Musi implementować interfejs określony przez sobanca.
+- The structure will be bombarded with queries, it should not crash and work optimally in terms of memory.
+- It must implement the interface specified by sobanca.
+- AddMsg blocking if there is no space, similarly to GetMsg.
 
-**Dla List:**
-- Wyciągnięcie elementu z pustej listy usypia wątek do momentu pojawienia się jakiegos elementu.
-- Lista dynamiczny sposób implementacji - linked lista za pomocą wskaźników lub wszystkie elementy w zwykłej tablicy wskaźników i w miarę potrzeby realokujemy pamięć.
-- Addmsg  blokująca jeżeli nje ma miejsca, podobnie getmsg.
-
-**Sprawozdanie:**
-- W sprawozdaniu opisać istotne informacje o strukturach danych szczególnie dla 2 projektu
-- im szybciej się wyślę tym lepszy feedback się dostanie *(jak się za późno wyślę to tylko info o błędzie, jak szybciej to wskazówki naprowadzające)*
-- na ostatnich zajęciach wszyscy powinni mieć już oceny
-- na zajęciach w styczniu pol zajęć tipy od sobanca, druga połowa czas ma dyskusje i pytania
-- będzie weryfikacja autorstwa projektu także trzeba wiedzieć co dana rzecz robi
-- Skała puntów na ocenę końcowa łącznie jest 40 pkt do uzyskania, 20 test, max 20 projekt
-- ostateczna skalę sobaniec potem poda, na pewno od 20 zaliczenie ale może prog obniżyć
+**Report:**
+- In the report, describe important information about data structures, especially for the 2nd project
+- the sooner I send it, the better feedback I will get *(if I send it too late, only information about the error, if sooner, then guidance)*
+- everyone should have grades by the last class
+- during the classes in January, half of the class will receive tips from Sobaniec, the other half will have time for discussions and questions
+- there will be verification of the authorship of the project, so you need to know what a given thing does
+- The scale of points for the final grade is a total of 40 points to obtain, 20 for the test, max 20 for the project
+- Sobaniec will provide the final scale later, definitely from 20 a pass, but the threshold may be lowered
