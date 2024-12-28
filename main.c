@@ -88,7 +88,6 @@ int main() {
     printf("Queue created with size %d\n", size);
 
     pthread_t t1, t2, t3, t4;
-    // pthread_t t1, t2;
 
     // Create threads to simulate the example
     pthread_create(&t1, NULL, thread_T1, &queue);

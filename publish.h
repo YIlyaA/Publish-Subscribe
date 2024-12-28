@@ -44,10 +44,7 @@ void removeMsg(TQueue *queue, void *msg);
 
 void setSize(TQueue *queue, int *size);
 
-
 // help functions
 int countSubscribers(TQueue *queue);
-
-// void printDeliveryMap(TQueue* queue);
 
 #endif
