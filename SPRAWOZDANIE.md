@@ -51,6 +51,15 @@ Projekt jest dostępny w repozytorium pod adresem:
   - `tail`: Indeks wskazujący koniec kolejki (bufor cykliczny).
   - `subscribers`: Wskaźnik na początek listy `SubscriberNode`.
   - `delivery_map`: Tablica dwuwymiarowa przechowująca informacje o dostarczeniu wiadomości. Dla każdego subskrybenta określa, czy otrzymał daną wiadomość.
+  
+    Przykład:
+    ```
+    | Message | `T2` | `T3` |
+    |---------|------|------|
+    | `m1`    |  1   |  0   |
+    | `m2`    |  0   |  0   |
+    | `m3`    |  1   |  1   |
+    ```
   - `mutex`: Mutex zapewniający wzajemne wykluczanie w operacjach na kolejce. 
   - `not_full`: Zmienna warunkowa, sygnalizująca, że kolejka nie jest pełna i można dodać wiadomość.
   - `not_empty`: Zmienna warunkowa, sygnalizująca, że kolejka nie jest pusta i można pobrać wiadomość.
