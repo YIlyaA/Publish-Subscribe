@@ -1,28 +1,100 @@
+#include "publish.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <pthread.h>
-#include "publish.h"  // Include your publish-subscribe implementation header
+#include <unistd.h> // For sleep()
 
-// Function declarations for thread behaviors
-void* thread_t1(void* arg);
-void* thread_t2(void* arg);
-void* thread_t3(void* arg);
-void* thread_t4(void* arg);
+void* thread_T1(void* arg) {
+    TQueue* queue = (TQueue*)arg;
+    int counter = 1;
 
-// Shared queue
-TQueue queue;
+    for (int i = 0; i < 10; i++) { // Add 10 messages
+        sleep(3);
+        char message[10];
+        sprintf(message, "m%d", counter++);
+        addMsg(queue, message);
+        printf("T1: Put message '%s'\n", message);
+    }
+
+    return NULL;
+}
+
+void* thread_T2(void* arg) {
+    TQueue* queue = (TQueue*)arg;
+    pthread_t thread_id = pthread_self();
+    subscribe(queue, &thread_id);
+    printf("T2: Subscribed\n");
+
+    for (int i = 0; i < 5; i++) { \
+        char* message = (char*)getMsg(queue, &thread_id);
+        if (message) {
+            printf("T2: Received message: %s\n", message);
+        }
+        sleep(2);
+    }
+
+    unsubscribe(queue, &thread_id);
+    printf("T2: Unsubscribed\n");
+
+    return NULL;
+}
+
+
+void* thread_T3(void* arg) {
+    TQueue* queue = (TQueue*)arg;
+    pthread_t thread_id = pthread_self();
+    subscribe(queue, &thread_id);
+    printf("T3: Subscribed\n");
+
+    for (int i = 0; i < 5; i++) { // Receive 5 messages
+        char* message = (char*)getMsg(queue, &thread_id);
+        if (message) {
+            printf("T3: Received message: %s\n", message);
+        }
+        sleep(4);
+    }
+
+    unsubscribe(queue, &thread_id);
+    printf("T3: Unsubscribed\n");
+
+    return NULL;
+}
+
+
+void* thread_T4(void* arg) {
+    TQueue* queue = (TQueue*)arg;
+    pthread_t thread_id = pthread_self();
+    subscribe(queue, &thread_id);
+    printf("T4: Subscribed\n");
+
+    char* message = (char*)getMsg(queue, &thread_id);
+    if (message) {
+        printf("T4: Received message: %s\n", message);
+    }
+    sleep(1);
+
+    unsubscribe(queue, &thread_id);
+    printf("T4: Unsubscribed\n");
+
+    return NULL;
+}
+
 
 int main() {
-    int queue_size = 3;  // Initial size of the queue
-    createQueue(&queue, &queue_size);
+    TQueue queue;
+    int size = 2; // Initial queue size
 
-    // Create threads T1, T2, T3, and T4
+    createQueue(&queue, &size);
+    printf("Queue created with size %d\n", size);
+
     pthread_t t1, t2, t3, t4;
-    pthread_create(&t1, NULL, thread_t1, NULL);
-    pthread_create(&t2, NULL, thread_t2, NULL);
-    pthread_create(&t3, NULL, thread_t3, NULL);
-    pthread_create(&t4, NULL, thread_t4, NULL);
+    // pthread_t t1, t2;
+
+    // Create threads to simulate the example
+    pthread_create(&t1, NULL, thread_T1, &queue);
+    pthread_create(&t2, NULL, thread_T2, &queue);
+    pthread_create(&t3, NULL, thread_T3, &queue);
+    pthread_create(&t4, NULL, thread_T4, &queue);
 
     // Wait for threads to finish
     pthread_join(t1, NULL);
@@ -30,90 +102,8 @@ int main() {
     pthread_join(t3, NULL);
     pthread_join(t4, NULL);
 
-    // Destroy the queue
+    printf("All threads finished. Destroying queue.\n");
     destroyQueue(&queue);
 
     return 0;
-}
-
-// Thread T1: Producer and resize operations
-void* thread_t1(void* arg) {
-    int m1 = 1, m2 = 2, m3 = 3, m4 = 4, m5 = 5, m6 = 6, m7 = 7;
-
-    addMsg(&queue, &m1);  // Put m1
-    printf("T1: Put m1\n");
-
-    addMsg(&queue, &m2);  // Put m2
-    printf("T1: Put m2\n");
-
-    addMsg(&queue, &m3);  // Put m3
-    printf("T1: Put m3\n");
-
-    int new_size = 2;  // Resize queue
-    setSize(&queue, &new_size);
-    printf("T1: Resized queue to size %d\n", new_size);
-
-    addMsg(&queue, &m4);  // Put m4
-    printf("T1: Put m4\n");
-
-    addMsg(&queue, &m5);  // Put m5
-    printf("T1: Put m5\n");
-
-    addMsg(&queue, &m6);  // Put m6
-    printf("T1: Put m6\n");
-
-    addMsg(&queue, &m7);  // Put m7
-    printf("T1: Put m7\n");
-
-    return NULL;
-}
-
-// Thread T2: Subscriber consuming messages
-void* thread_t2(void* arg) {
-    pthread_t self = pthread_self();
-    subscribe(&queue, &self);
-    printf("T2: Subscribed\n");
-
-    sleep(1);  // Simulate delay
-
-    printf("T2: Available messages: %d\n", queue.current_size);
-    int* msg = (int*)getMsg(&queue, &self);
-    if (msg) printf("T2: Retrieved message %d\n", *msg);
-
-    unsubscribe(&queue, &self);
-    printf("T2: Unsubscribed\n");
-
-    return NULL;
-}
-
-// Thread T3: Subscriber consuming messages
-void* thread_t3(void* arg) {
-    pthread_t self = pthread_self();
-    subscribe(&queue, &self);
-    printf("T3: Subscribed\n");
-
-    sleep(2);  // Simulate delay
-
-    int* msg = (int*)getMsg(&queue, &self);
-    if (msg) printf("T3: Retrieved message %d\n", *msg);
-
-    unsubscribe(&queue, &self);
-    printf("T3: Unsubscribed\n");
-
-    return NULL;
-}
-
-// Thread T4: Subscriber checking availability and unsubscribing
-void* thread_t4(void* arg) {
-    pthread_t self = pthread_self();
-    subscribe(&queue, &self);
-    printf("T4: Subscribed\n");
-
-    sleep(3);  // Simulate delay
-
-    printf("T4: Available messages: %d\n", queue.current_size);
-    unsubscribe(&queue, &self);
-    printf("T4: Unsubscribed\n");
-
-    return NULL;
 }

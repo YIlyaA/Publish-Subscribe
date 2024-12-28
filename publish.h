@@ -3,22 +3,26 @@
 
 #include <pthread.h>
 
-typedef struct {
-    void **messages;          // Array of message pointers
-    int max_size;             // Maximum capacity of the queue
-    int current_size;         // Current number of messages in the queue
-    int head;                 // Index of the first message
-    int tail;                 // Index of the next available slot
+typedef struct SubscriberNode {
+    pthread_t thread_id; // ID wątku subskrybenta
+    struct SubscriberNode* next; // Następny subskrybent w liście
+} SubscriberNode;
 
-    pthread_mutex_t lock;     // Mutex for thread safety
-    pthread_cond_t not_full;  // Condition variable: queue not full
-    pthread_cond_t not_empty; // Condition variable: queue not empty
+typedef struct TQueue {
+    void** messages;     // Tablica wskaźników na wiadomości
+    int size;            // Maksymalna pojemność kolejki
+    int count;           // Aktualna liczba wiadomości w kolejce
+    int head;            // Indeks początku kolejki (dla bufora cyklicznego)
+    int tail;            // Indeks końca kolejki (dla bufora cyklicznego)
 
-    pthread_t *subscribers;   // Array of subscriber thread IDs
-    int num_subscribers;      // Number of current subscribers
+    SubscriberNode* subscribers; // Lista subskrybentów
+    int** delivery_map;          // Mapa dostarczania wiadomości
 
-    int **read_status;        // 2D array: tracks if each subscriber has read a message
+    pthread_mutex_t mutex;       // Mutex do synchronizacji
+    pthread_cond_t not_full;     // Zmienna warunkowa dla pełnej kolejki
+    pthread_cond_t not_empty;    // Zmienna warunkowa dla pustej kolejki
 } TQueue;
+
 
 
 
@@ -40,5 +44,10 @@ void removeMsg(TQueue *queue, void *msg);
 
 void setSize(TQueue *queue, int *size);
 
+
+// help functions
+int countSubscribers(TQueue *queue);
+
+// void printDeliveryMap(TQueue* queue);
 
 #endif
